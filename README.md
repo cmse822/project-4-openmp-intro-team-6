@@ -25,19 +25,54 @@ Now, let's implement so OpenMP loop parallelism.
 4. Plot the times-to-solution for the MMM for each value of `N` separately as functions of the the thread count `T`. Compare the scaling of the MMM for different matrix dimensions.
 5. Verify that for the same input matrices that the solution does not depend on the number of threads.
 
+
 ## Part 2: Adding OpenMP threading to a simple MPI application
 
 Take a look at the Hello World applications that we have used in past assignments that include basic MPI functionality. Modify one of these applications to include OpenMP. 
 
 1. Wrap the print statements in an `omp parallel` region.
+
+Done.
+
 2. Make sure to modify the `MPI_Init` call accordingly to allow for threads! What level of thread support do you need?
+
+The thread support we chose is MPI_THREAD_FUNNELED because we only want the main thread making the MPI calls while the other threads are responsible for the parallel region of the code we defined.
+
 3. Compile the code including the appropriate flag for OpenMP support. For a GCC-based MPI installation, this would be, e.g., `mpic++ -fopenmp hello.cpp`.
+
+Done.
+
 4. Run the code using 2 MPI ranks and 4 OpenMP threads per rank. To do this, prior to executing the run command, set the number of threads environment variable as `> export OMP_NUM_THREADS=4`. Then you can simply execute the application with the `mpiexec` command: `> mpiexec -n 2 ./a.out`.
+
+Done.
+
+
 5. Explain the output.
+
+For the output, this is what we got:
+
+```bash
+Hello, World! This is thread id 2 of 4 threads on process rank 1
+Hello, World! This is thread id 0 of 4 threads on process rank 1
+Hello, World! This is thread id 1 of 4 threads on process rank 1
+Hello, World! This is thread id 3 of 4 threads on process rank 1
+Hello, World! This is thread id 1 of 4 threads on process rank 0
+Hello, World! This is thread id 2 of 4 threads on process rank 0
+Hello, World! This is thread id 0 of 4 threads on process rank 0
+Hello, World! This is thread id 3 of 4 threads on process rank 0
+```
+
+We just print a hello world statement along with the thread id, number of threads, and process rank.
+
+Of course, the instructions told us to use 2 ranks, thats why we see only 0 and 1 ranks. And we set the number of threads to be 4, so 4 threads are created on each process rank.
+
+The number of threads and thread ID number are both private so that each thread has it's own copy of those variables and they are competing updating the same memory location.
+
+There is no gurantee of the thread order since they are all forked and what ever thread completes first is done. Thats why the thread ID's are out of order for both process ranks.
 
 ## Part 3: Hybrid Parallel Matrix Multiplication
 
-Now, let's combine OpenMP and MPI functionality into a hybrid parallel version of the MMM. 
+Now, let's combine OpenMP and MPI functionality into a hybrid parallel version of the MMM.
 
 1. Add MPI to  you OpenMP MMM code by distributing the rows of one of the input matrices across MPI ranks. Have each MPI rank perform its portion of the MMM using OpenMP threading. Think very carefully about the structure of the main MMM loops! Once done, gather the resulting matrix on rank 0 and output the result. Verify that for the same input matrices the result does not depend on either the number of MPI ranks or the number of OpenMP threads per rank. 
 2. On HPCC, carry out a performance study in which you vary the number of MPI ranks, the number of OpenMP threads per rank, and the matrix size. Make plots showing the times to solution for the various cases. Explain your results.
