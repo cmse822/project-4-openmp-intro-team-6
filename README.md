@@ -17,18 +17,35 @@ for i = 1, N
 
 What strategies could you use to add parallelism using OpenMP threading to this kernel? Is each of the three loops threadable?
 
+For this kernel, I would collapse the outer two loops. I would not do all three due to race issues with writing over the same shared C matrix. And adding atomic operations will only degrade performance further. So this collapse 2 apporach would be best. You essentially just collapse those two for loops into one large iteration so the forked threads can get their divided share of work.
+
+It's threadable, but I would not recommend it for the reasons I stated above, which is race conditions of writing to the same variable. I think it would be wise to leave each thread to do it's own iterations for that inner loop. I guess it could be possible with using reduction on a sum variable to get partial sums for the inner for loop, then outside of the reduction block you can set the sum to the C matrix. That would also work, but could be more inefficient.
+
 Now, let's implement so OpenMP loop parallelism.
 
 1. Modify your MMM code from Project 1 to implement OpenMP threading by adding appropriate compiler directives to the outer loop of the MMM kernel. When compiling the OpenMP version of your code be sure to include the appropriate compiler flag (`-fopenmp` for GCC).
+
+  Done.
+
 2. Compute the time-to-solution of your MMM code for 1 thread (e.g., `export OMP_NUM_THREADS=1`) to the non-OpenMP version (i.e., compiled without the `-fopenmp` flag). Any matrix size `N` will do here. Does it perform as you expect? If not, consider the OpenMP directives you are using.
+
+  TODO.
+
 3. Perform a thread-to-thread speedup study of your MMM code either on your laptop or HPCC. Compute the total time to solution for a few thread counts (in powers of 2): `1,2,4,...T`, where T is the maximum number of threads available on the machine you are using. Do this for matrix sizes of `N=20,100,1000`.
+
+  TODO.
+
 4. Plot the times-to-solution for the MMM for each value of `N` separately as functions of the the thread count `T`. Compare the scaling of the MMM for different matrix dimensions.
+
+  TODO.
+
 5. Verify that for the same input matrices that the solution does not depend on the number of threads.
 
+  TODO.
 
 ## Part 2: Adding OpenMP threading to a simple MPI application
 
-Take a look at the Hello World applications that we have used in past assignments that include basic MPI functionality. Modify one of these applications to include OpenMP. 
+Take a look at the Hello World applications that we have used in past assignments that include basic MPI functionality. Modify one of these applications to include OpenMP.
 
 1. Wrap the print statements in an `omp parallel` region.
 
@@ -80,3 +97,34 @@ Now, let's combine OpenMP and MPI functionality into a hybrid parallel version o
 ## What to turn in
 
 To your git project repo, commit your final working code for the above exercises and a concise write-up including all plots, and detailed responses to the questions posed concerning your results. 
+
+
+## How to run
+
+### Setup
+
+Run the following commands:
+
+```bash
+module purge
+module load intel/2020a
+export OMP_NUM_THREADS=<num_threads>
+```
+
+### For running the matrix_mult.cpp code
+
+Run the following commands:
+
+```bash
+gcc -fopenmp -o matrix_mult matrix_mult.cpp -lstdc++ -Wall -O3
+./matrix_mult <matrix_size>
+```
+
+### For running the hello.cpp code
+
+Run the following commands:
+
+```bash
+mpicxx -fopenmp -o hello hello.cpp
+mpiexec -n 2 ./hello
+```

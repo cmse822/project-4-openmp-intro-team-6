@@ -4,6 +4,7 @@
 #include <random>
 #include <fstream>
 #include <algorithm>
+#include <omp.h>
 extern "C" {
 #include "get_walltime.c"
 }
@@ -15,14 +16,6 @@ const double upper_bound = 10000.0f;
 std::default_random_engine re;
 std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
 size_t N = 100;
-
-
-struct ComputeComponent{
-    std::string name;
-    int num_cores;
-    float clock_speed_ghz;
-    int num_fpus;
-};
 
 /**
  * Performs matrix multiplication of two input matrices and stores the result in the third matrix.
@@ -47,7 +40,7 @@ void MatMul(    const   std::vector<std::vector<double>>& a,
         exit(1);
     }
 
-
+    #pragma omp parallel for collapse(2) 
     for (size_t i = 0; i < a.size(); i++) {
         for(size_t k=0; k < a[0].size(); k++){
             for(size_t j=0; j < a[0].size(); j++){
@@ -57,7 +50,6 @@ void MatMul(    const   std::vector<std::vector<double>>& a,
         }
     }
 }
-
 
 /**
  * Prints the given matrix of type T.
@@ -77,30 +69,6 @@ void PrintMatrix(std::vector<std::vector<T>> matrix){
             printf("%f ", matrix[i][j]);
         printf("]\n");
     }
-}
-
-
-/**
- * Calculates the MFLOPS based on the total time taken.
- * @param total_time the total time taken for the operations
- * @return the calculated MFLOPS
- * @throws None
- */
-double CalculateMFLOPS(double total_time){
-    double flop = 2 * N * N * N * REPEAT;
-    double mflops = flop / std::fmax(0.001f, (total_time * 1e6f));
-    return mflops;
-}
-
-/**
- * Calculate the theoretical peak performance based on the given compute component.
- * @param comp the compute component containing the number of cores, number of FPUs, and clock speed in GHz
- * @return the calculated theoretical peak performance
- * @throws None
- */
-double CalculateTheoreticalPeakPerformance(const ComputeComponent& comp){
-    double peak_perf = comp.num_cores * comp.num_fpus * comp.clock_speed_ghz * 1000.0f;
-    return peak_perf;
 }
 
 /**
@@ -159,10 +127,11 @@ int main(int argc, char* argv[]) {
         N = 100;
     }
 
+    int num_threads = omp_get_num_threads();
     std::vector<std::vector<double>> mat1(N, std::vector<double>(N));
     std::vector<std::vector<double>> mat2(N, std::vector<double>(N));
-
-    printf("Starting the program with %ldx%ld matrices\n", N, N);
+    
+    printf("Starting the program with %ldx%ld matrices and %d threads!!\n", N, N, num_threads);
 
     for(size_t j=0; j < mat1[0].size(); j++){
         for(size_t k=0; k < mat1[0].size(); k++){
@@ -186,16 +155,9 @@ int main(int argc, char* argv[]) {
         total_time += elapsed_time;
     }
 
-    double mflops = CalculateMFLOPS(total_time);
+    // printf("Writing results to %s\n", FILENAME.c_str());
+    // SaveResultsToCSV(std::to_string(peak_perf * 1e-3), std::to_string(mflops * 1e-3));
+    // printf("Finished writing results to %s\nExiting.", FILENAME.c_str());
 
-    ComputeComponent cc = {"Chris", 4, 3.0f, 1};
-    ComputeComponent co = {"Onur", 8, 4.2f, 1};
-
-    const auto& peak_perf = CalculateTheoreticalPeakPerformance(co);
-
-    printf("Theoretical Performance [%s] is: %f Mflop/s\n", co.name.c_str(), peak_perf); 
-    printf("Total Mflop/s with %ld repeats: %f Mflop/s\n", REPEAT, mflops);
-    printf("Writing results to %s\n", FILENAME.c_str());
-    SaveResultsToCSV(std::to_string(peak_perf * 1e-3), std::to_string(mflops * 1e-3));
-    printf("Finished writing results to %s\nExiting.", FILENAME.c_str());
+    printf("Finished matrix multiplication results using OpenMP.\n");
 }
