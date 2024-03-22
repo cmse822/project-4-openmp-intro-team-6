@@ -9,7 +9,6 @@ extern "C" {
 #include "get_walltime.c"
 }
 
-const std::string FILENAME = "data.csv";
 const size_t REPEAT = 20;
 const double lower_bound = 0.0f;
 const double upper_bound = 10000.0f;
@@ -73,26 +72,24 @@ void PrintMatrix(std::vector<std::vector<T>> matrix){
 
 /**
  * Save results to a CSV file.
- * @param filename the name of the CSV file
- * @param peak_performance the peak performance value
- * @param achieved_performance the achieved performance value
+ * @param time_to_compute the computation time to do matrix multiplication
  * @throws None
  */
-void SaveResultsToCSV(const std::string& peak_performance, const std::string& achieved_performance){
-    if(FILENAME.substr(FILENAME.size() - 4) != ".csv"){
+void SaveResultsToCSV(const std::string& filename, const std::string& thread_count, const std::string& time_to_compute) {
+    if(filename.substr(filename.size() - 4) != ".csv"){
         std::cout << "Error: Invalid file format. Please specify a CSV file." << std::endl;
         return;
     }
 
-    std::ifstream infile(FILENAME, std::ios::in | std::ios::out | std::ios::binary);
+    std::ifstream infile(filename, std::ios::in | std::ios::out | std::ios::binary);
 
     if(!infile){
-        std::ofstream outfile(FILENAME);
+        std::ofstream outfile(filename);
         outfile.close();
     }
 
-    std::ofstream outfile(FILENAME, std::ios::in | std::ios::out | std::ios::binary);
-    std::string header_line = "matrix_size,peak_performance,achieved_performance";
+    std::ofstream outfile(filename, std::ios::in | std::ios::out | std::ios::binary);
+    std::string header_line = "matrix_size,thread_count,time_to_compute";
 
     outfile.seekp(0, std::ios::end);
 
@@ -102,7 +99,7 @@ void SaveResultsToCSV(const std::string& peak_performance, const std::string& ac
     }
 
     outfile.seekp(0, std::ios::end);
-    outfile << N << "," << peak_performance << "," << achieved_performance << std::endl;
+    outfile << N << "," << thread_count << "," << time_to_compute << std::endl;
     infile.close();
     outfile.close();
 }
@@ -127,11 +124,30 @@ int main(int argc, char* argv[]) {
         N = 100;
     }
 
-    int num_threads = omp_get_num_threads();
+    int NUM_THREADS = 1;
+
+    if(argc > 2) {
+        if (!std::isdigit(*argv[2]) || std::stoi(argv[2]) < 1 || std::stoi(argv[2]) > 100) {
+            throw std::runtime_error("Invalid number of threads argument. Please enter a numeric value between 1 and 100.");
+        }
+        NUM_THREADS = std::stoi(argv[2]);
+    } else {
+        std::cout << "No number of threads argument provided. Defaulting to 1 thread." << std::endl;
+        NUM_THREADS = 1;
+    }
+
+    std::string FILENAME = "data_omp.csv";
+    if(argc > 3) {
+        printf("Filename: %s\n", argv[3]);
+        FILENAME = std::string(argv[3]);
+    }
+
+    omp_set_num_threads(NUM_THREADS);
+
     std::vector<std::vector<double>> mat1(N, std::vector<double>(N));
     std::vector<std::vector<double>> mat2(N, std::vector<double>(N));
     
-    printf("Starting the program with %ldx%ld matrices and %d threads!!\n", N, N, num_threads);
+    printf("Starting the program with %ldx%ld matrices\n", N, N);
 
     for(size_t j=0; j < mat1[0].size(); j++){
         for(size_t k=0; k < mat1[0].size(); k++){
@@ -155,9 +171,9 @@ int main(int argc, char* argv[]) {
         total_time += elapsed_time;
     }
 
-    // printf("Writing results to %s\n", FILENAME.c_str());
-    // SaveResultsToCSV(std::to_string(peak_perf * 1e-3), std::to_string(mflops * 1e-3));
-    // printf("Finished writing results to %s\nExiting.", FILENAME.c_str());
+    printf("Writing results to %s\n", FILENAME.c_str());
+    SaveResultsToCSV(FILENAME, std::to_string(NUM_THREADS), std::to_string(total_time));
+    printf("Finished writing results to %s\nExiting.\n", FILENAME.c_str());
 
     printf("Finished matrix multiplication results using OpenMP.\n");
 }

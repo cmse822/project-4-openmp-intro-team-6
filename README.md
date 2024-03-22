@@ -25,23 +25,35 @@ Now, let's implement so OpenMP loop parallelism.
 
 1. Modify your MMM code from Project 1 to implement OpenMP threading by adding appropriate compiler directives to the outer loop of the MMM kernel. When compiling the OpenMP version of your code be sure to include the appropriate compiler flag (`-fopenmp` for GCC).
 
-  Done.
+    Done.
 
 2. Compute the time-to-solution of your MMM code for 1 thread (e.g., `export OMP_NUM_THREADS=1`) to the non-OpenMP version (i.e., compiled without the `-fopenmp` flag). Any matrix size `N` will do here. Does it perform as you expect? If not, consider the OpenMP directives you are using.
 
-  TODO.
+    Over matrix size N=1000, using 20 repeats, 1 thread, here are the results for the non-OpenMP version:
+    | Matrix Size | Time to Solution |
+    |------------:|-----------------:|
+    |         100 |         0.007370 |
+    |        1000 |         6.380824 |
+
+    And here is the results for the OpenMP version:
+    | Matrix Size | Time to Solution |
+    |------------:|-----------------:|
+    |         100 |         0.006763 |
+    |        1000 |         6.415191 |
+
+    As expected, the performance here is the same between Non-OpenMP and OpenMP due to the fact that we set the OMP_NUM_THREADS to 1. It won't take advantage of OpenMP's multi-threaded capabilities, meaning there's no parallel execution.
 
 3. Perform a thread-to-thread speedup study of your MMM code either on your laptop or HPCC. Compute the total time to solution for a few thread counts (in powers of 2): `1,2,4,...T`, where T is the maximum number of threads available on the machine you are using. Do this for matrix sizes of `N=20,100,1000`.
 
-  TODO.
+    I used HPCC for the results and T=64. The results can be found in `data_omp_thread_to_thread_speedup.csv`
 
 4. Plot the times-to-solution for the MMM for each value of `N` separately as functions of the the thread count `T`. Compare the scaling of the MMM for different matrix dimensions.
 
-  TODO.
+    TODO.
 
 5. Verify that for the same input matrices that the solution does not depend on the number of threads.
 
-  TODO.
+    TODO.
 
 ## Part 2: Adding OpenMP threading to a simple MPI application
 
@@ -116,7 +128,7 @@ export OMP_NUM_THREADS=<num_threads>
 Run the following commands:
 
 ```bash
-gcc -fopenmp -o matrix_mult matrix_mult.cpp -lstdc++ -Wall -O3
+gcc -fopenmp -o matrix_mult_omp matrix_mult.cpp -lstdc++ -Wall -O3
 ./matrix_mult <matrix_size>
 ```
 

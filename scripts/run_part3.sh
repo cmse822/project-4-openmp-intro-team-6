@@ -1,4 +1,4 @@
-OUTPUT_REPORT_FILE="part3_matrix_mult.csv"
+OUTPUT_REPORT_FILE="data/part3_matrix_mult.csv"
 PART3_EXECUTABLE="./part3_matrix_mult"
 
 rm -f $OUTPUT_REPORT_FILE
