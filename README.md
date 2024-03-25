@@ -49,7 +49,7 @@ Now, let's implement so OpenMP loop parallelism.
 
 4. Plot the times-to-solution for the MMM for each value of `N` separately as functions of the the thread count `T`. Compare the scaling of the MMM for different matrix dimensions.
 
-    TODO.
+    ![plot](https://github.com/cmse822/project-4-openmp-intro-team-6/assets/94200328/bb9c07af-d03d-4114-a9f0-c1738664acbc)
 
 5. Verify that for the same input matrices that the solution does not depend on the number of threads.
 
