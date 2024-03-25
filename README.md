@@ -108,7 +108,20 @@ Now, let's combine OpenMP and MPI functionality into a hybrid parallel version o
 
 2. On HPCC, carry out a performance study in which you vary the number of MPI ranks, the number of OpenMP threads per rank, and the matrix size. Make plots showing the times to solution for the various cases. Explain your results.
 
-    TODO.
+    ![plot_matrix_size_10](https://github.com/cmse822/project-4-openmp-intro-team-6/assets/94200328/ffb32db4-bdcc-4229-85be-1e14af816f24)
+
+   ![plot_matrix_size_100](https://github.com/cmse822/project-4-openmp-intro-team-6/assets/94200328/9d373923-a398-4ee7-8ab4-ac2aad45e8a8)
+
+   ![plot_matrix_size_200](https://github.com/cmse822/project-4-openmp-intro-team-6/assets/94200328/d4ffec64-ba55-4e0d-9152-71f50f813d7d)
+
+   ![plot_matrix_size_300](https://github.com/cmse822/project-4-openmp-intro-team-6/assets/94200328/83268661-54f9-486e-b727-13252e7ec000)
+
+   ![plot_matrix_size_400](https://github.com/cmse822/project-4-openmp-intro-team-6/assets/94200328/42a0193f-7926-493b-8fc8-bc800c9eadcd)
+
+   ![plot_matrix_size_500](https://github.com/cmse822/project-4-openmp-intro-team-6/assets/94200328/6cfd8544-134c-4567-bf6c-3e5e9689d2b8)
+
+   ![plot_matrix_size_600](https://github.com/cmse822/project-4-openmp-intro-team-6/assets/94200328/aee46cf9-b008-47a8-b94d-7c9c799d953a)
+
 
 ## What to turn in
 
