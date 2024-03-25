@@ -1,8 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures
 
 df = pd.read_csv('../data/data_omp_thread_to_thread_speedup.csv')
 
@@ -28,7 +26,7 @@ plt.title('Time to Compute vs. Thread Count Grouped by Matrix Size')
 # Adding legend
 plt.legend(title='Matrix Size')
 
-# Save the plot as an image file (e.g., PNG)
+# Save the plot as an image file 
 plt.savefig('../data/plot_tts.png')
 
 # Displaying the plot
